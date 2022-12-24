@@ -15,13 +15,16 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  email     String  @unique
-  hash      String
-  firstName String?
-  lastName  String?
+  email        String  @unique
+  hash         String
+  firstName    String?
+  lastName     String?
   refreshToken String?
 
   bookmarks Bookmark[]
+
+  createdCategories Category[] @relation("createdCategories")
+  updatedCategories Category[]  @relation("updatedCategories")
 
   @@map("users")
 }
@@ -39,4 +42,30 @@ model Bookmark {
   userId Int
 
   @@map("bookmarks")
+}
+
+model Activity {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name        String
+  description String?
+
+  @@map("activities")
+}
+
+model Category {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdUser   User     @relation(name: "createdCategories", fields: [createdUserId], references: [id])
+  createdUserId Int
+  updatedUser   User?    @relation(name: "updatedCategories", fields: [updatedUserId], references: [id])
+  updatedUserId Int?
+
+  name        String
+  description String?
+
+  @@map("categories")
 }

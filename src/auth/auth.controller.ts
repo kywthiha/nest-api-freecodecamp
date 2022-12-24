@@ -3,8 +3,14 @@ import { AuthService } from "./auth.service";
 import { AuthDto } from "./dto";
 import { AccessTokenGuard, RefreshTokenGuard } from "./guard";
 import { Request } from "express";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
-@Controller("auth")
+@ApiBearerAuth()
+@ApiTags("auth")
+@Controller({
+  path: "auth",
+  version: "1"
+})
 export class AuthController {
   constructor(private authService: AuthService) {
   }
