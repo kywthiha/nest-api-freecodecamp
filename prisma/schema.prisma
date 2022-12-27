@@ -10,6 +10,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  user
+  admin
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
@@ -20,39 +25,18 @@ model User {
   firstName    String?
   lastName     String?
   refreshToken String?
-
-  bookmarks Bookmark[]
+  role         Role    @default(admin)
 
   createdCategories Category[] @relation("createdCategories")
-  updatedCategories Category[]  @relation("updatedCategories")
+  updatedCategories Category[] @relation("updatedCategories")
+
+  createdProducts Product[] @relation("createdProducts")
+  updatedProducts Product[] @relation("updatedProducts")
+
+  createdOrders Order[] @relation("createdOrders")
+  updatedOrders Order[] @relation("updatedOrders")
 
   @@map("users")
-}
-
-model Bookmark {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  title       String
-  description String?
-  link        String
-
-  user   User @relation(fields: [userId], references: [id])
-  userId Int
-
-  @@map("bookmarks")
-}
-
-model Activity {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  name        String
-  description String?
-
-  @@map("activities")
 }
 
 model Category {
@@ -66,6 +50,57 @@ model Category {
 
   name        String
   description String?
+  products    Product[]
 
   @@map("categories")
+}
+
+model Product {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdUser   User     @relation(name: "createdProducts", fields: [createdUserId], references: [id])
+  createdUserId Int
+  updatedUser   User?    @relation(name: "updatedProducts", fields: [updatedUserId], references: [id])
+  updatedUserId Int?
+
+  name        String
+  description String?
+  price       Float
+
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId Int?
+
+  orders ProductsOnOrders[]
+
+  @@map("products")
+}
+
+model Order {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdUser   User     @relation(name: "createdOrders", fields: [createdUserId], references: [id])
+  createdUserId Int
+  updatedUser   User?    @relation(name: "updatedOrders", fields: [updatedUserId], references: [id])
+  updatedUserId Int?
+
+  totalAmount Float
+  note        String?
+
+  products ProductsOnOrders[]
+
+  @@map("orders")
+}
+
+model ProductsOnOrders {
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   Int
+
+  price    Float
+  quantity Int
+
+  @@id([productId, orderId])
 }

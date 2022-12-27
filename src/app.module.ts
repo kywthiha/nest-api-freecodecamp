@@ -7,6 +7,8 @@ import { UserModule } from "./user/user.module";
 import { BookmarkModule } from "./bookmark/bookmark.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { CategoryModule } from "./category/category.module";
+import { CaslModule } from './casl/casl.module';
+import { RbacModule } from './rbac/rbac.module';
 
 @Module({
   imports: [
@@ -18,7 +20,9 @@ import { CategoryModule } from "./category/category.module";
     UserModule,
     BookmarkModule,
     PrismaModule,
-    CategoryModule
+    CategoryModule,
+    CaslModule,
+    RbacModule
   ],
   providers: [AppService]
 })
