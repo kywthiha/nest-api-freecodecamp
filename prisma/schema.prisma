@@ -21,38 +21,15 @@ model User {
   lastName     String?
   refreshToken String?
 
-  bookmarks Bookmark[]
-
   createdCategories Category[] @relation("createdCategories")
-  updatedCategories Category[]  @relation("updatedCategories")
+  updatedCategories Category[] @relation("updatedCategories")
+
+  createdRoles        Role[]         @relation("createdRoles")
+  updatedRoles        Role[]         @relation("updatedRoles")
+  createdUsersOnRoles UsersOnRoles[] @relation("createdUsersOnRoles")
+  roles               UsersOnRoles[] @relation("roles")
 
   @@map("users")
-}
-
-model Bookmark {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  title       String
-  description String?
-  link        String
-
-  user   User @relation(fields: [userId], references: [id])
-  userId Int
-
-  @@map("bookmarks")
-}
-
-model Activity {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  name        String
-  description String?
-
-  @@map("activities")
 }
 
 model Category {
@@ -68,4 +45,52 @@ model Category {
   description String?
 
   @@map("categories")
+}
+
+model Permission {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name  String
+  roles RolesOnPermissions[]
+
+  @@map("permissions")
+}
+
+model Role {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdUser   User     @relation(name: "createdRoles", fields: [createdUserId], references: [id])
+  createdUserId Int
+  updatedUser   User?    @relation(name: "updatedRoles", fields: [updatedUserId], references: [id])
+  updatedUserId Int?
+
+  name        String
+  permissions RolesOnPermissions[]
+  users       UsersOnRoles[]
+
+  @@map("roles")
+}
+
+model RolesOnPermissions {
+  role         Role       @relation(fields: [roleId], references: [id])
+  roleId       Int
+  permission   Permission @relation(fields: [permissionId], references: [id])
+  permissionId Int
+
+  @@id([roleId, permissionId])
+}
+
+model UsersOnRoles {
+  user          User     @relation(name: "roles", fields: [userId], references: [id])
+  userId        Int
+  role          Role     @relation(fields: [roleId], references: [id])
+  roleId        Int
+  createdAt     DateTime @default(now())
+  createdUser   User     @relation(name: "createdUsersOnRoles", fields: [createdUserId], references: [id])
+  createdUserId Int
+
+  @@id([userId, roleId])
 }
